@@ -1,0 +1,38 @@
+body {
+  text-align: center;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+main {
+  height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#button-holder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#button-holder button {
+  margin: 3px;
+}
+
+#word-holder {
+  padding: 10px;
+  border: 1px solid;
+}
+
+#word-holder.correct {
+  color: green;
+  border: 3px solid;
+  background-color: rgb(196, 255, 196);
+}
+
+#word-holder.wrong {
+  color: rgb(128, 0, 0);
+  border: 3px solid;
+  background-color: rgb(255, 196, 196);
+}
