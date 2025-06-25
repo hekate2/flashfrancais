@@ -1,38 +1,26 @@
 "use strict";
 
 import express from "express";
-import { promises as fs } from "fs";
-import path from "path";
+import fetch from "node-fetch";
 
 const app = express();
 
 const FORBIDDEN_TAGS = [
   "vulgar",
   "obsolete"
-]
+];
 
-
-// not good but i don't care
-let pathToMots = path.join(process.cwd(), "donnees", 'mots.json');
-let mots = await fs.readFile(pathToMots);
-mots = JSON.parse(mots);
+let mots;
 
 app.get("/mot", async (req, res) => {
   try {
-    let infos = await choisirMot();
-
-    res.json({
-      "type": "success",
-      "infos": infos
-    })
+    const infos = await choisirMot();
+    res.json({ type: "success", infos });
   } catch (err) {
     console.error(err);
-    res.status(500).json({
-      "type": "error",
-      "message": err.message
-    })
+    res.status(500).json({ type: "error", message: err.message });
   }
-})
+});
 
 async function choisirMot() {
   let motChoisi;
@@ -41,37 +29,49 @@ async function choisirMot() {
   while (!genre) {
     motChoisi = mots[Math.floor(Math.random() * mots.length)];
 
-    if (["f", "m"].includes(motChoisi["head_templates"][0]["args"]["1"])) {
-      genre = motChoisi["head_templates"][0]["args"]["1"];
-    } else if (["f", "m"].includes(motChoisi["head_templates"][0]["args"]["g"])) {
-      genre = motChoisi["head_templates"][0]["args"]["g"];
-    } else if (motChoisi["senses"][0]["tags"]?.includes("feminine")) {
+    const headArgs = motChoisi?.head_templates?.[0]?.args || {};
+    const tags = motChoisi?.senses?.[0]?.tags || [];
+
+    if (["f", "m"].includes(headArgs["1"])) {
+      genre = headArgs["1"];
+    } else if (["f", "m"].includes(headArgs["g"])) {
+      genre = headArgs["g"];
+    } else if (tags.includes("feminine")) {
       genre = "f";
-    } else if (motChoisi["senses"][0]["tags"]?.includes("masculine")) {
+    } else if (tags.includes("masculine")) {
       genre = "m";
     }
 
-    FORBIDDEN_TAGS.forEach((tag) => {
-      if (motChoisi["senses"][0]["tags"]?.includes(tag)) {
-        // quick fix to have it be deleted
-        genre = null;
-      }
-    });
-
-    if (!genre) {
-      // supprimmer le mot sans genre ou non-singulaires
-      mots = mots.filter((m) => m["word"] !== motChoisi["word"]);
-      await fs.writeFile(pathToMots, JSON.stringify(mots));
+    // better
+    if (FORBIDDEN_TAGS.some(tag => tags.includes(tag))) {
+      genre = null;
     }
   }
 
   return {
-    "mot": motChoisi["word"],
-    "genre": genre,
-    "explication": motChoisi["senses"][0]["glosses"]
+    mot: motChoisi.word,
+    genre: genre,
+    explication: motChoisi.senses?.[0]?.glosses || []
+  };
+}
+
+async function getWordData() {
+  try {
+    const res = await fetch("https://raw.githubusercontent.com/hekate2/flashfrancais/refs/heads/main/donnees/mots.json");
+    // inline cuz I don't want a seperate functionnnnnn
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
+    mots = await res.json();
+  } catch (err) {
+    console.error("Failed to load mots.json:", err.message);
+    process.exit(1);
   }
 }
 
+
+await getWordData();
+
 app.use(express.static("public"));
 const PORT = process.env.PORT || 8080;
-app.listen(PORT)
+app.listen(PORT);
