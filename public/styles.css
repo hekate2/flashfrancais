@@ -1,6 +1,8 @@
 body {
   text-align: center;
   font-family: 'Helvetica', 'Arial', sans-serif;
+  background-color: black;
+  color: white;
 }
 
 main {
@@ -23,6 +25,17 @@ main {
 #word-holder {
   padding: 10px;
   border: 1px solid;
+  cursor: pointer;
+  width: 300px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#word-holder.def h2 {
+  font-weight: normal;
+  font-size: 1em;
 }
 
 #word-holder.correct {
@@ -35,4 +48,26 @@ main {
   color: rgb(128, 0, 0);
   border: 3px solid;
   background-color: rgb(255, 196, 196);
+}
+
+#word-holder.flip {
+  animation: .5s flip forwards;
+}
+
+.caution {
+  color: rgb(255, 230, 0);
+}
+
+.mal {
+  color: red;
+}
+
+@keyframes flip {
+  from {
+    transform: rotate3d(0, 1, 0, 0deg);
+  }
+
+  to {
+    transform: rotate3d(0, 1, 0, 180deg);
+  }
 }
