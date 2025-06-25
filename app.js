@@ -48,16 +48,13 @@ async function choisirMot() {
     }
   }
 
-  return {
-    mot: motChoisi.word,
-    genre: genre,
-    explication: motChoisi.senses?.[0]?.glosses || []
-  };
+  return motChoisi
 }
 
 async function getWordData() {
   try {
-    const res = await fetch("https://raw.githubusercontent.com/hekate2/flashfrancais/refs/heads/main/donnees/mots.json");
+    const path = "https://raw.githubusercontent.com/hekate2/flashfrancais/refs/heads/main/donnees/mots_small.json";
+    const res = await fetch(path);
     // inline cuz I don't want a seperate functionnnnnn
     if (!res.ok) {
       throw new Error(await res.text());
