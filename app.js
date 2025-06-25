@@ -53,7 +53,7 @@ async function choisirMot() {
 
 async function getWordData() {
   try {
-    const path = "https://raw.githubusercontent.com/hekate2/flashfrancais/refs/heads/main/donnees/mots_small.json";
+    const path = "https://raw.githubusercontent.com/hekate2/flashfrancais/refs/heads/online/donnees/mots_small.json";
     const res = await fetch(path);
     // inline cuz I don't want a seperate functionnnnnn
     if (!res.ok) {
